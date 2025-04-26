@@ -167,9 +167,9 @@ UserInputService.InputBegan:Connect(function(input, gp)
         local nearest = getNearestPlayer()
         _G.SelectedAimbotPlayer = nearest
         if nearest then
-            print("[Aimbot QB Script] Selected nearest player: " .. nearest.Name)
+            print("fafasdfa: " .. nearest.Name)
         else
-            print("[Aimbot QB Script] No valid player found to select.")
+            print("fsafsafas.")
         end
     end
 end)
@@ -300,12 +300,12 @@ local function solveThrowTarget(origin, landingPos, power)
     local sinTheta = math.sin(theta)
     local denom = dxz * math.tan(theta) - dy
     if denom <= 0 then
-        print("[Aimbot QB Script] No valid arc for this throw (denom <= 0)")
+        print("fafasf")
         return landingPos
     end
     local v2 = (g * dxz * dxz) / (2 * cosTheta * cosTheta * denom)
     if v2 < 0 then
-        print("[Aimbot QB Script] No valid arc for this throw (v^2 < 0)")
+        print("fasfasfas")
         return landingPos
     end
     local v = math.sqrt(v2)
@@ -386,18 +386,18 @@ local function debugArcYTableOnLand(power, dist, arcY, target, landPos)
         status = 'Overshoot'
         advice = 'Decrease arcY for upper torso catch.'
     end
-    print(string.format("[ArcYTest] Power: %3d | Dist: %3d | ArcY: %5.2f | Land: (%.2f, %.2f, %.2f) | ΔXZ: %.2f | ΔY: %.2f | Target: (%.2f, %.2f, %.2f) | Status: %-16s | Advice: %s", power or 0, dist or 0, arcY or 0, landPos.X or 0, landPos.Y or 0, landPos.Z or 0, dxz or 0, dy or 0, target.X or 0, target.Y or 0, target.Z or 0, status, advice))
+    print(string.format("asfasfafast: (%.2f,sfafsa", power or 0, dist or 0, arcY or 0, landPos.X or 0, landPos.Y or 0, landPos.Z or 0, dxz or 0, dy or 0, target.X or 0, target.Y or 0, target.Z or 0, status, advice))
 end
 
 -- === THROW LOGIC ===
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.Q then
-        print("[AimbotDebug] Q pressed - throw logic entered")
+        print("fsafafsas")
         local selected = _G.SelectedAimbotPlayer
-        if not selected then print("[Aimbot QB Script] No player selected. Press H.") return end
+        if not selected then print("fasfafas") return end
         local ball = workspace.lllAnkleslll and workspace.lllAnkleslll:FindFirstChild("Football")
-        if not ball then print("[Aimbot QB Script] Ball not found!") return end
+        if not ball then print("fsafsafafs") return end
         local origin = ball.Position
         local lastBallPos = ball and ball.Position
         local lastBallVel = ball and ball.Velocity
@@ -451,7 +451,7 @@ UserInputService.InputBegan:Connect(function(input, gp)
         -- === SMART AI PREDICTION LOGIC ===
         local velocityThreshold = 3.0
         local trackMag = (track.avgVel and track.avgVel.Magnitude) or 0
-        print(string.format("[AimbotDebug] Throw: track.avgVel.Magnitude=%.2f | isMoving=%s", trackMag, tostring(trackMag > velocityThreshold)))
+        print(string.format("safasfasf", trackMag, tostring(trackMag > velocityThreshold)))
         local predictedPos
         local arcY
         local flightTime = 0 -- Ensure flightTime is always defined
@@ -460,15 +460,15 @@ UserInputService.InputBegan:Connect(function(input, gp)
         local power = power -- fallback to whatever power was set before, if any
         if trackMag > velocityThreshold and qbToPlayerDist < 120 then
             power = 80
-            print(string.format("[AimbotDebug] Using 80 power (moving, distance %.2f < 120)", qbToPlayerDist))
+            print(string.format("sfafafas", qbToPlayerDist))
         else
-            print(string.format("[AimbotDebug] Using original power logic (trackMag=%.2f, dist=%.2f)", trackMag, qbToPlayerDist))
+            print(string.format("dasdadsaa", trackMag, qbToPlayerDist))
         end
 
         -- Update receiver history for route/fake analysis
         updateReceiverHistory(receiverPos)
         local routeType, isFake = getRouteTypeAndFake(receiverHistory)
-        print("[AimbotDebug] Route detected:", routeType, "Fake:", isFake)
+        print("dasdadadadas", routeType, "Fake:", isFake)
 
         if trackMag > velocityThreshold then
             local leadMultiplier = 1
@@ -485,7 +485,7 @@ UserInputService.InputBegan:Connect(function(input, gp)
                 -- === Route/Fake-aware prediction adjustment ===
                 if isFake then
                     predicted = receiverPos + (track.avgVel.Unit * math.min(track.avgVel.Magnitude, 12))
-                    print("[AimbotDebug] Detected fake/cut! Adjusting prediction.")
+                    print("dwadwdawda")
                 elseif routeType == "streak" then
                     predicted = receiverPos + (track.avgVel * t * 1.1)
                 elseif routeType == "corner_right" or routeType == "corner_left" then
@@ -540,15 +540,15 @@ UserInputService.InputBegan:Connect(function(input, gp)
                         local spotTags = replicated:FindFirstChild("SpotTags")
                         if spotTags and spotTags:IsA("Folder") then
                             chosenModel = obj
-                            print("Chosen model:", obj.Name, "(has Replicated->SpotTags)")
+                            print("dawdwada", obj.Name, "(has Replicated->SpotTags)")
                             break
                         end
                     end
                 end
             end
-            print("[AimbotDebug] Model selection result:", chosenModel and chosenModel.Name or "nil")
+            print("wadawdadwadw", chosenModel and chosenModel.Name or "nil")
             if chosenModel then
-                print("[AimbotDebug] About to fire remote for model:", chosenModel and chosenModel.Name)
+                print("dawdwadawd:", chosenModel and chosenModel.Name)
                 game:GetService("ReplicatedStorage"):WaitForChild("MiniGames"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack({
                     [1] = "Mechanics",
                     [2] = "ThrowBall",
@@ -574,17 +574,17 @@ UserInputService.InputBegan:Connect(function(input, gp)
                         local ActiveSpots = replicated:FindFirstChild("ActiveSpots")
                         if ActiveSpots and ActiveSpots:IsA("Folder") then
                             chosenModel = obj
-                            print("Chosen model:", obj.Name, "(has Replicated->ActiveSpots)")
+                            print("adawdel:", obdawa "(has RepliawawdawSpots)")
                             break
                         end
                     end
                 end
             end
-            print("[AimbotDebug] Model selection result:", chosenModel and chosenModel.Name or "nil")
+            print("wadawdt:", chosenModel and chosenModel.Name or "nil")
             if not chosenModel then
-                error("No model in workspace.Games with Replicated (Model) and ActiveSpots (Folder) found!")
+                error("gsdgds")
             end
-            print("[AimbotDebug] About to fire remote for model:", chosenModel and chosenModel.Name)
+            print("gdsgsdg:", chosenModel and chosenModel.Name)
             game:GetService("ReplicatedStorage"):WaitForChild("Games"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack({
                 [1] = "Mechanics",
                 [2] = "ThrowBall",
@@ -638,7 +638,7 @@ local function debugArcYTableOnLand(power, dist, arcY, target, landPos)
         status = 'Overshoot'
         advice = 'Decrease arcY for upper torso catch.'
     end
-    print(string.format("[ArcYTest] Power: %3d | Dist: %3d | ArcY: %5.2f | Land: (%.2f, %.2f, %.2f) | ΔXZ: %.2f | ΔY: %.2f | Target: (%.2f, %.2f, %.2f) | Status: %-16s | Advice: %s", power or 0, dist or 0, arcY or 0, landPos.X or 0, landPos.Y or 0, landPos.Z or 0, dxz or 0, dy or 0, target.X or 0, target.Y or 0, target.Z or 0, status, advice))
+    print(string.format("adawda| Status: %-16s | Advice: %s", power or 0, dist or 0, arcY or 0, landPos.X or 0, landPos.Y or 0, landPos.Z or 0, dxz or 0, dy or 0, target.X or 0, target.Y or 0, target.Z or 0, status, advice))
 end
 
 -- Unload/Disable Function for Aimbot/Script
@@ -653,27 +653,27 @@ function unloadAimbot()
             end
         end
         _G.AimbotConnections = nil
-        print("[Aimbot] Disconnected all event listeners.")
+        print("dawdawd.")
     end
     -- Call disableESP() for visuals
     if type(disableESP) == "function" then
         disableESP()
-        print("[Aimbot] ESP visuals disabled.")
+        print("awdawda")
     end
     -- Destroy _G.AimbotUI and _G.AimbotHighlight if present
     if _G.AimbotUI and _G.AimbotUI.Destroy then
         _G.AimbotUI:Destroy()
-        print("[Aimbot] UI destroyed.")
+        print("daawdwada")
     end
     _G.AimbotUI = nil
     if _G.AimbotHighlight and _G.AimbotHighlight.Destroy then
         _G.AimbotHighlight:Destroy()
-        print("[Aimbot] Highlight destroyed.")
+        print("dwadwadadawd")
     end
     _G.AimbotHighlight = nil
     -- Clear _G.SelectedAimbotPlayer
     _G.SelectedAimbotPlayer = nil
-    print("[Aimbot] Cleared selected player.")
+    print("asfafasfa")
 end
 
 print("[Aimbot QB Script Loaded] Press H to select and highlight the nearest player, Q to throw to them.")
