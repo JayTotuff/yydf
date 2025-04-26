@@ -1,0 +1,63 @@
+local chosenModel = nil
+    local wsMiniGames = workspace:FindFirstChild("MiniGames")
+    if wsMiniGames and #wsMiniGames:GetChildren() > 0 then
+        for _, obj in ipairs(wsMiniGames:GetChildren()) do
+            if obj:IsA("Model") then
+                local replicated = obj:FindFirstChild("Replicated")
+                if replicated and replicated:IsA("Model") then
+                    local spotTags = replicated:FindFirstChild("SpotTags")
+                    if spotTags and spotTags:IsA("Folder") then
+                        chosenModel = obj
+                        print("Chosen model:", obj.Name, "(has Replicated->SpotTags)")
+                        break
+                    end
+                end
+            end
+        end
+        print("[AutoKickDebug] Model selection result:", chosenModel and chosenModel.Name or "nil")
+        if chosenModel then
+            print("[AutoKickDebug] About to fire remote for model:", chosenModel and chosenModel.Name)
+            local args = {
+                [1] = "Mechanics",
+                [2] = "KickHiked",
+                [3] = math.huge,
+                [4] = 0,
+                [5] = 0
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("MiniGames"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack(args))
+        else
+            error("No model in workspace.MiniGames with Replicated (Model) and SpotTags (Folder) found!")
+        end
+    else
+        -- Fallback to workspace.Games
+        local wsGames = workspace:FindFirstChild("Games")
+        if not wsGames or #wsGames:GetChildren() == 0 then
+            error("Neither workspace.MiniGames nor workspace.Games have usable models!")
+        end
+        for _, obj in ipairs(wsGames:GetChildren()) do
+            if obj:IsA("Model") then
+                local replicated = obj:FindFirstChild("Replicated")
+                if replicated and replicated:IsA("Model") then
+                    local ActiveSpots = replicated:FindFirstChild("ActiveSpots")
+                    if ActiveSpots and ActiveSpots:IsA("Folder") then
+                        chosenModel = obj
+                        print("Chosen model:", obj.Name, "(has Replicated->ActiveSpots)")
+                        break
+                    end
+                end
+            end
+        end
+        print("[AutoKickDebug] Model selection result:", chosenModel and chosenModel.Name or "nil")
+        if not chosenModel then
+            error("No model in workspace.Games with Replicated (Model) and ActiveSpots (Folder) found!")
+        end
+        print("[AutoKickDebug] About to fire remote for model:", chosenModel and chosenModel.Name)
+        local args = {
+            [1] = "Mechanics",
+            [2] = "KickHiked",
+            [3] = math.huge,
+            [4] = 0,
+            [5] = 0
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("Games"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack(args))
+    end
