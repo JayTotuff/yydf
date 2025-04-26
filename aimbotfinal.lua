@@ -210,16 +210,13 @@ local function getNearestPlayer()
     return nearest
 end
 
--- Global flag to track if aimbot is unloaded
-local aimbotUnloaded = false
+-- === EVENT CONNECTIONS (NO LOGIC CHANGES) ===
+-- Q (throw) and H (select) event connections should always exist for normal operation.
+-- Only disconnect and nil them during unloadAimbot(). No global aimbotUnloaded flag check in the event logic itself!
 
--- Store ESP and selection event connections for cleanup
-local qInputConn, hInputConn
-
--- Connect Q key event (throw)
-if qInputConn then disconnectIfConnected(qInputConn, "Q key event") end
-qInputConn = UserInputService.InputBegan:Connect(function(input, gp)
-    if aimbotUnloaded then return end
+-- Q key event (throw)
+if qInputConn then qInputConn:Disconnect() end
+local qInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.Q then
         print("[AimbotDebug] Q pressed - throw logic entered")
@@ -427,10 +424,9 @@ qInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     end
 end)
 
--- Connect H key event (selection)
-if hInputConn then disconnectIfConnected(hInputConn, "H key event") end
-hInputConn = UserInputService.InputBegan:Connect(function(input, gp)
-    if aimbotUnloaded then return end
+-- H key event (select)
+if hInputConn then hInputConn:Disconnect() end
+local hInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.H then
         print("[AimbotDebug] H pressed - select logic entered")
@@ -661,11 +657,8 @@ end
 
 -- Unload/Disable Function for Aimbot/Script
 function unloadAimbot()
-    aimbotUnloaded = true
-    disconnectIfConnected(qInputConn, "Q key event")
-    qInputConn = nil
-    disconnectIfConnected(hInputConn, "H key event")
-    hInputConn = nil
+    if qInputConn then qInputConn:Disconnect() qInputConn = nil print("[Aimbot] Disconnected Q key event.") end
+    if hInputConn then hInputConn:Disconnect() hInputConn = nil print("[Aimbot] Disconnected H key event.") end
     disableESP()
     -- Try common exploit script cleanup patterns
     if _G.Aimbot and type(_G.Aimbot.Unload) == "function" then
