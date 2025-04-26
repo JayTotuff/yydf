@@ -100,11 +100,20 @@ players.PlayerRemoving:Connect(function(player)
 end)
 
 -- Store Drawing objects, UI, and other custom resources for cleanup
-local cleanupObjects = {}
+local cleanupObjects = cleanupObjects or {}
 
 -- Helper to register objects for cleanup
 function registerForCleanup(obj, label)
+    if not cleanupObjects then cleanupObjects = {} end
     table.insert(cleanupObjects, {obj=obj, label=label})
+end
+
+-- Helper to disconnect event connections safely
+local function disconnectIfConnected(conn, label)
+    if conn and typeof(conn) == "RBXScriptConnection" then
+        conn:Disconnect()
+        print("[Aimbot] Disconnected " .. (label or "event") .. ".")
+    end
 end
 
 -- Enhanced ESP cleanup (handles Drawing, UI, etc.)
@@ -119,22 +128,24 @@ function disableESP()
         print("[Aimbot] No ESP to disable.")
     end
     -- Cleanup Drawing/visuals/UI
-    for _, entry in ipairs(cleanupObjects) do
-        local obj, label = entry.obj, entry.label
-        if obj then
-            if type(obj.Remove) == "function" then
-                obj:Remove()
-                print("[Aimbot] Removed Drawing object" .. (label and (": "..label) or ""))
-            elseif type(obj.Destroy) == "function" then
-                obj:Destroy()
-                print("[Aimbot] Destroyed object" .. (label and (": "..label) or ""))
-            elseif typeof(obj) == "Instance" and obj.Parent then
-                obj:Destroy()
-                print("[Aimbot] Destroyed Instance" .. (label and (": "..label) or ""))
+    if cleanupObjects then
+        for _, entry in ipairs(cleanupObjects) do
+            local obj, label = entry.obj, entry.label
+            if obj then
+                if type(obj.Remove) == "function" then
+                    obj:Remove()
+                    print("[Aimbot] Removed Drawing object" .. (label and (": "..label) or ""))
+                elseif type(obj.Destroy) == "function" then
+                    obj:Destroy()
+                    print("[Aimbot] Destroyed object" .. (label and (": "..label) or ""))
+                elseif typeof(obj) == "Instance" and obj.Parent then
+                    obj:Destroy()
+                    print("[Aimbot] Destroyed Instance" .. (label and (": "..label) or ""))
+                end
             end
         end
+        cleanupObjects = {}
     end
-    cleanupObjects = {}
 end
 
 -- === BALL AND TARGET RESET LOGIC ===
@@ -204,14 +215,9 @@ local aimbotUnloaded = false
 
 -- Store ESP and selection event connections for cleanup
 local qInputConn, hInputConn
-local function disconnectIfConnected(conn, label)
-    if conn then
-        conn:Disconnect()
-        print("[Aimbot] Disconnected " .. (label or "event") .. ".")
-    end
-end
 
--- THROW LOGIC (Q)
+-- Connect Q key event (throw)
+if qInputConn then disconnectIfConnected(qInputConn, "Q key event") end
 qInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     if aimbotUnloaded then return end
     if gp then return end
@@ -421,7 +427,8 @@ qInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     end
 end)
 
--- PLAYER SELECTION LOGIC (H)
+-- Connect H key event (selection)
+if hInputConn then disconnectIfConnected(hInputConn, "H key event") end
 hInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     if aimbotUnloaded then return end
     if gp then return end
