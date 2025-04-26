@@ -641,4 +641,21 @@ local function debugArcYTableOnLand(power, dist, arcY, target, landPos)
     print(string.format("[ArcYTest] Power: %3d | Dist: %3d | ArcY: %5.2f | Land: (%.2f, %.2f, %.2f) | ΔXZ: %.2f | ΔY: %.2f | Target: (%.2f, %.2f, %.2f) | Status: %-16s | Advice: %s", power or 0, dist or 0, arcY or 0, landPos.X or 0, landPos.Y or 0, landPos.Z or 0, dxz or 0, dy or 0, target.X or 0, target.Y or 0, target.Z or 0, status, advice))
 end
 
+-- Unload/Disable Function for Aimbot/Script
+function unloadAimbot()
+    -- Try common exploit script cleanup patterns
+    if _G.Aimbot and type(_G.Aimbot.Unload) == "function" then
+        _G.Aimbot.Unload()
+        print("[Aimbot] Unload function called.")
+    elseif _G.Aimbot and type(_G.Aimbot.Destroy) == "function" then
+        _G.Aimbot.Destroy()
+        print("[Aimbot] Destroy function called.")
+    elseif _G.Aimbot then
+        _G.Aimbot = nil
+        print("[Aimbot] _G.Aimbot set to nil.")
+    else
+        print("[Aimbot] No unload method found. Manual cleanup may be needed.")
+    end
+end
+
 print("[Aimbot QB Script Loaded] Press H to select and highlight the nearest player, Q to throw to them.")
