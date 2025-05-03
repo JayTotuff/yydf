@@ -490,13 +490,13 @@ UserInputService.InputBegan:Connect(function(input, gp)
                     predicted = receiverPos + (track.avgVel.Unit * math.min(track.avgVel.Magnitude, 12))
                     print("[AimbotDebug] Detected fake/cut! Adjusting prediction.")
                 elseif routeType == "streak" then
-                    predicted = receiverPos + (track.avgVel * t * 1.1)
+                    predicted = receiverPos + (track.avgVel * t * 1.5)
                 elseif routeType == "corner_right" or routeType == "corner_left" then
-                    predicted = receiverPos + (track.avgVel * t * 1.08)
+                    predicted = receiverPos + (track.avgVel * t * 3.0) -- Increased lead for corners
                 elseif routeType == "slant_right" or routeType == "slant_left" then
-                    predicted = receiverPos + (track.avgVel * t * 0.95)
+                    predicted = receiverPos + (track.avgVel * t * 3.0) -- Increased lead for slants
                 elseif routeType == "out_right" or routeType == "out_left" then
-                    predicted = receiverPos + (track.avgVel * t * 0.85)
+                    predicted = receiverPos + (track.avgVel * t * 2.0)
                 elseif routeType == "curl" or routeType == "comeback" then
                     predicted = receiverPos -- anticipate stop/comeback
                 else
