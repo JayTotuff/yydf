@@ -76,6 +76,7 @@ local function CreateLandingIndicator()
     
     part.Parent = workspace
     
+   
     return part 
 end 
 
@@ -136,6 +137,7 @@ local beamPart = CreateArcBeamSystem()
 landingIndicator.Position = workspace.CurrentCamera.CFrame.Position + Vector3.new(0, 5, -10)
 beamPart.Position = workspace.CurrentCamera.CFrame.Position
 
+
 -- Function to update arc beam positions
 local function UpdateArcBeam(startPos, endPos, arcHeight, power)
     if not startPos or not endPos or not arcHeight then return end
@@ -177,6 +179,7 @@ end
 
 local function PredictLandingPosition(football) 
     if not football or not football:IsA("BasePart") then
+        
         return nil
     end
     
@@ -188,8 +191,12 @@ local function PredictLandingPosition(football)
     local vel = football.Velocity 
     local grav = workspace.Gravity 
     
+    -- Debug info
+    
+    
     -- Check if velocity is too small to calculate landing
     if vel.Magnitude < 1 then
+        
         return pos
     end
     
@@ -198,6 +205,7 @@ local function PredictLandingPosition(football)
     -- Handle case where ball might not land (going straight up)
     local discriminant = y^2 - 2 * grav * (pos.Y - 1)
     if discriminant < 0 then
+        
         return nil
     end
     
@@ -205,10 +213,12 @@ local function PredictLandingPosition(football)
     
     -- If time is negative, ball is going up and won't land
     if t < 0 then
+        
         return nil
     end
     
     local landingPos = pos + vel * t + 0.5 * Vector3.new(0, -grav, 0) * t^2 
+   
     return landingPos 
 end 
 
@@ -465,6 +475,8 @@ local function SetAutoPower(distance)
         powerBox.Text = tostring(power)
     end
     
+    
+    
     return power
 end
 
@@ -532,46 +544,92 @@ local function AimAt(target)
                         local spotTags = replicated:FindFirstChild("SpotTags")
                         if spotTags and spotTags:IsA("Folder") then
                             chosenModel = obj
+                            
                             break
                         end
                     end
                 end
             end
-        end
-        
-        if chosenModel then
-            local remote = chosenModel:FindFirstChild("RemoteEvent", true)
-            if remote and remote:IsA("RemoteEvent") then
-                local targetCFrame = CFrame.new(predictedPosition)
-                remote:FireServer("Throw", targetCFrame, power)
+            
+            if chosenModel then
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("MiniGames"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack({
+                    [1] = "Mechanics",
+                    [2] = "ThrowBall",
+                    [3] = {
+                        ["Target"] = Vector3.new(predictedPosition.X, arcY, predictedPosition.Z),
+                        ["AutoThrow"] = false,
+                        ["Power"] = power
+                    }
+                }))
+            else
+                -- Fallback to workspace.Games
+                local wsGames = workspace:FindFirstChild("Games")
+                if not wsGames or #wsGames:GetChildren() == 0 then
+                    
+                end
+                
+                for _, obj in ipairs(wsGames:GetChildren()) do
+                    if obj:IsA("Model") then
+                        local replicated = obj:FindFirstChild("Replicated")
+                        if replicated and replicated:IsA("Model") then
+                            local ActiveSpots = replicated:FindFirstChild("ActiveSpots")
+                            if ActiveSpots and ActiveSpots:IsA("Folder") then
+                                chosenModel = obj
+                                
+                                break
+                            end
+                        end
+                    end
+                end
+                
+                
+                if not chosenModel then
+                   
+                end
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("Games"):WaitForChild(chosenModel.Name):WaitForChild("ReEvent"):FireServer(unpack({
+                    [1] = "Mechanics",
+                    [2] = "ThrowBall",
+                    [3] = {
+                        ["Target"] = Vector3.new(predictedPosition.X, arcY, predictedPosition.Z),
+                        ["AutoThrow"] = false,
+                        ["Power"] = power
+                    }
+                }))
             end
         end
     end
 end
 
+-- Toggle Handler
+UserInputService.InputBegan:Connect(function(input, processed)
+if processed then return end
+if input.KeyCode == TOGGLE_KEY then
+AimbotEnabled = not AimbotEnabled
+end
+end)
+
 -- Main Loop
-RunService.RenderStepped:Connect(function()
-    if AimbotEnabled then
-        local target = GetClosestPlayer()
-        if target then
-            AimAt(target)
-        else
-            landingIndicator.Transparency = 1  -- Hide indicator if no target
-            for _, beam in ipairs(arcBeams) do
-                beam.Transparency = NumberSequence.new(1) -- Hide all beams
-            end
-        end
-    else
-        landingIndicator.Transparency = 1  -- Hide indicator when aimbot is disabled
-        for _, beam in ipairs(arcBeams) do
-            beam.Transparency = NumberSequence.new(1) -- Hide all beams
+RunService.RenderStepped:Connect(function() 
+    if not AimbotEnabled then 
+        landingIndicator.Transparency = 1  -- Hide when disabled
+        return 
+    end 
+
+    local target = GetClosestPlayer() 
+    if target then 
+        AimAt(target) 
+    else 
+        landingIndicator.Transparency = 1  -- Hide when no target
+    end 
+    
+    -- Debug message to confirm the script is running
+    if AimbotEnabled and not target then
+        -- Only print occasionally to avoid spam
+        if math.random(1, 100) == 1 then
+            
         end
     end
 end)
 
--- Toggle aimbot on/off with Q key
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == TOGGLE_KEY then
-        AimbotEnabled = not AimbotEnabled
-    end
-end)
